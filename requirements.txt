@@ -1,0 +1,10 @@
+numpy
+scipy
+pandas
+joblib
+scikit_learn
+fire
+umap_learn
+matplotlib
+termcolor
+tqdm
