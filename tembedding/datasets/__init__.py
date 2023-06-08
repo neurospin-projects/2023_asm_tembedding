@@ -14,3 +14,4 @@ Module that defines some datasets.
 
 # Imports
 from .datasets import Dataset
+from .cebra import SimpleMultiSessionDataset, MultiSessionLoader

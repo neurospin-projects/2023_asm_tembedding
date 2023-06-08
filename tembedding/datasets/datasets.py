@@ -141,6 +141,48 @@ class Dataset(object):
         print_white(f"  sets sizes: {set_sizes}")
         return cv
 
+    def unflatten(self, X):
+        """ Unflatten data in the individuals x windows dimesions.
+
+        Parameters
+        -----------
+        X: numpy array (n_samples, n_features)
+            the data.
+
+        Returns
+        -------
+        X: numpy array (n_individuals, n_windows, n_features)
+            the unflatten data.
+        """
+        if X.ndim == 1:
+            return X.reshape(-1, self.meta.n_wins)
+        elif X.ndim == 2:
+            n_features = X.shape[1]
+            return X.reshape(-1, self.meta.n_wins, n_features)
+        else:
+            raise ValueError("The input data must be 1D or 2D.")
+
+    def flatten(self, X):
+        """ Flatten data in the individuals x windows dimesions.
+
+        Parameters
+        -----------
+        X: numpy array (n_individuals, n_windows, n_features)
+            the data.
+
+        Returns
+        -------
+        X: numpy array (n_samples, n_features)
+            the flatten data.
+        """
+        if X.ndim == 2:
+            return X.reshape(-1)
+        elif X.ndim == 3:
+            n_features = X.shape[-1]
+            return X.reshape(-1, n_features)
+        else:
+            raise ValueError("The input data must be 2D or 3D.")
+
     def get_train_data(self):
         """ Get the train data.
 

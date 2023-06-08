@@ -15,3 +15,4 @@ Module that defines some models.
 # Imports
 from .cpca import CPCA
 from .sklearn_cpca import SKCPCA
+from .cebra import Model as CEBRAModel

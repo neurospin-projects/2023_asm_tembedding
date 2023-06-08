@@ -18,7 +18,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.base import BaseEstimator
 from sklearn.metrics import calinski_harabasz_score
 from sklearn.model_selection import StratifiedKFold
-from cpca import CPCA
+from .cpca import CPCA
 
 
 class SKCPCA(BaseEstimator):
