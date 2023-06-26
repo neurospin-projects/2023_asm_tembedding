@@ -1,0 +1,14 @@
+
+#PBS -d path_to_container
+#PBS -q batch
+#PBS -l nodes=1:ppn=10
+#PBS -l mem=64gb
+#PBS -l walltime=5:00:00
+
+cd $PBS_O_WORKDIR
+
+singularity run -bind /neurospin my_container.sif \
+            /neurospin/lbi/monkeyfmri/deepstim/database/ANESTHETIC_database/derivatives/reference_kmeans/inputs/inputs.npy \
+            /neurospin/lbi/monkeyfmri/deepstim/database/ANESTHETIC_database/derivatives/reference_kmeans/inputs/metadata.tsv \
+            /neurospin/lbi/monkeyfmri/deepstim/workspace/2023_ASM_tembedding/distance_all.npy \
+            38
