@@ -1,0 +1,17 @@
+numpy 
+pandas
+ipython
+matplotlib
+pandas
+seaborn
+scikit-learn
+scipy
+torch 
+torchvision 
+torchaudio
+joblib
+fire
+umap_learn
+termcolor
+tqdm
+scikit-image
