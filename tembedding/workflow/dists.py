@@ -24,14 +24,16 @@ from tembedding.color_utils import print_yellow, print_white, print_cyan
 
 
 def precompute_dfc_dist_exp(dfc_file, metadata_file, run_idx, outdir,
-                        n_wins=464, n_rois=82):
+                            n_wins=464, n_rois=82):
     """ Precompute the distance between any two pair of dynamic functional
     connectivity matrices (dFCs).
 
     Parameters
     ----------
     dfc_file: str
+        the path to the dFCs.
     metadata_file: str
+        the path to the associated meta data.
     run_idx: int
         the run index to be processed.
     outdir: str
