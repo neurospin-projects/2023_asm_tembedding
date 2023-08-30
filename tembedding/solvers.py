@@ -29,10 +29,11 @@ class SingleSessionSolver(object):
     This solver assumes that reference, positive and negative samples
     are processed by the same features encoder.
     """
-    def __init__(self, model, criterion, optimizer):
+    def __init__(self, model, criterion, optimizer, scheduler=None):
         self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
+        self.scheduler = scheduler
         self.log = {
             "pos": [],
             "neg": [],
@@ -102,6 +103,7 @@ class SingleSessionSolver(object):
                                               prediction.negative)
         loss.backward()
         self.optimizer.step()
+        self.scheduler.step()
         self.history.append(loss.item())
         stats = dict(
             pos=align.item(),
@@ -152,6 +154,8 @@ class SingleSessionSolver(object):
                 print('Epoch {}'.format(id_step))
                 print('Train loss {:.4f}, Train accuracy {:.2f}%'.format(
                     stats["total"],0))
+                if self.scheduler is not None:
+                    print("LR: {}".format(self.scheduler.get_last_lr()))
 
 
 class MultiSessionSolver(object):
