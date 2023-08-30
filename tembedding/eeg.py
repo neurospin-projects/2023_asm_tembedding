@@ -54,7 +54,7 @@ def eeg_markers(epochs_file, outdir, basename, njobs=1):
     # markers
     psds_params = dict(n_fft=4096, n_overlap=100, n_jobs=njobs, nperseg=128)
     base_psd = PowerSpectralDensityEstimator(
-        psd_method="welch", tmin=None, tmax=None, fmin=1., fmax=45.,
+        psd_method="welch", tmin=None, tmax=None, fmin=1., fmax=25.,
         psd_params=psds_params, comment="default")
     # > here are the resting-state compatible markers
     markers = Markers([
@@ -70,21 +70,21 @@ def eeg_markers(epochs_file, outdir, basename, njobs=1):
                              normalize=False, comment="alpha"),
         PowerSpectralDensity(estimator=base_psd, fmin=8., fmax=12.,
                              normalize=True, comment="alphan"),
-        PowerSpectralDensity(estimator=base_psd, fmin=12., fmax=30.,
+        PowerSpectralDensity(estimator=base_psd, fmin=12., fmax=25.,
                              normalize=False, comment="beta"),
-        PowerSpectralDensity(estimator=base_psd, fmin=12., fmax=30.,
+        PowerSpectralDensity(estimator=base_psd, fmin=12., fmax=25.,
                              normalize=True, comment="betan"),
-        PowerSpectralDensity(estimator=base_psd, fmin=30., fmax=45.,
-                             normalize=False, comment="gamma"),
-        PowerSpectralDensity(estimator=base_psd, fmin=30., fmax=45.,
-                             normalize=True, comment="gamman"),
-        PowerSpectralDensity(estimator=base_psd, fmin=1., fmax=45.,
+        #PowerSpectralDensity(estimator=base_psd, fmin=30., fmax=45.,
+        #                     normalize=False, comment="gamma"),
+        #PowerSpectralDensity(estimator=base_psd, fmin=30., fmax=45.,
+        #                     normalize=True, comment="gamman"),
+        PowerSpectralDensity(estimator=base_psd, fmin=1., fmax=25.,
                              normalize=False, comment="summary_se"),
-        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=45.,
+        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=25.,
                                     percentile=.5, comment="summary_msf"),
-        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=45.,
+        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=25.,
                                     percentile=.9, comment="summary_sef90"),
-        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=45.,
+        PowerSpectralDensitySummary(estimator=base_psd, fmin=1., fmax=25.,
                                     percentile=.95, comment="summary_sef95"),
         PermutationEntropy(tmin=None, tmax=0.6, backend=backend),
         # csd needs to be skipped
@@ -104,7 +104,7 @@ def eeg_markers(epochs_file, outdir, basename, njobs=1):
     # per marker and per epoch. In the paper, instead, we computed summaries over
     # epochs and sensosrs, yielding one value per marker per EEG recoding.
     epochs_fun = np.mean
-    channels_fun = np.std
+    channels_fun = np.mean
     reduction_params = {
         "PowerSpectralDensity": {
             "reduction_func": [
