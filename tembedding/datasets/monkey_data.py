@@ -68,7 +68,7 @@ def make_dfc_anesthesia(datasetdir):
     n_classes = len(states)
     subjects = meta_df["monkey"].unique() 
     n_subjects = subjects.size
-    n_wins = (meta_df["monkey"] == subjects[0]).sum()
+    n_wins = 464
     meta = SimpleNamespace(
         n_classes=n_classes, n_subjects=n_subjects, n_wins=n_wins,
         n_rois=n_rois, win_size=35, train_indices=train_mask,
