@@ -92,7 +92,7 @@ def infonce(pos_dist: torch.Tensor, neg_dist: torch.Tensor, beta) -> Tuple[
     """
     align = (-pos_dist).mean()
     uniform = torch.logsumexp(neg_dist, dim=1).mean()
-    return align + beta*uniform, align, uniform
+    return align + beta * uniform, align, uniform
 
 
 class CosineInfoNCE(object):
