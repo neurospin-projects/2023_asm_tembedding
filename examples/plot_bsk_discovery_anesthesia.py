@@ -1,23 +1,22 @@
 # -*- coding: utf-8 -*-
 """
-BSk discovery on synthetic dataset
-==================================
+BSk discovery on anesthesia dataset
+===================================
 
 Credit: A Grigis
 
-The goal here is to run discovery-driven (only time) or hypothesis-driven
-(time + distance between dFC using SSIM) expermiments. The inputs are the
-dyncamic functional conectivites (dFCs) computed using a sliding windows
-strategy on the synthetic dataset (generated with simtb).
+The goal here is to run discovery-driven (only time) expermiments. The inputs
+are the dyncamic functional conectivites (dFCs) computed using a sliding
+windows strategy on the anesthesia dataset.
 """
 
 import os
 import numpy as np
-from sklearn.metrics import accuracy_score
-from sklearn.linear_model import LogisticRegression
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import animation
+from sklearn.metrics import accuracy_score
+from sklearn.linear_model import LogisticRegression
 import torch
 import torch.nn as nn
 from tembedding.datasets import (
@@ -31,20 +30,17 @@ from tembedding.losses import EuclideanInfoNCE, CosineInfoNCE
 # Load the dataset
 # ----------------
 #
-# Load the synthetic data with 4 brain states and high additional noise.
+# Load the anesthesia data with 7 brain states.
 
 datadir = os.getenv("TEMBEDDING_DIR")
 if datadir is None:
     raise ValueError("Please specify the dataset directory in the "
                      "TEMBEDDING_DIR variable.")
-datafile = os.path.join(datadir, "sub-200_states-4_noise-high_synth",
-                        "dataset.npz")
-outdir = os.path.join(datadir, "derivatives",
-                      "sub-200_states-4_noise-high_seed-42_synth", "cebra")
+outdir = os.path.join(datadir, os.pardir, os.pardir, "cebra")
 assert os.path.isdir(outdir), outdir
 dataset = Dataset(
-    name="synthetic", test_size=0.1, decimate_ratio=0, random_state=42,
-    dataset_path=datafile, dfc_key="dfc45", label_key="labels45")
+    name="anesthesia", test_size=0.1, decimate_ratio=0, random_state=42,
+    datasetdir=datadir)
 X_train, y_train = dataset.get_train_data()
 X_test, y_test = dataset.get_test_data()
 X_train = dataset.unflatten(X_train).astype(np.single)
@@ -65,25 +61,25 @@ distance = "cosine"
 lr = 3e-1
 model = CEBRAModel(
     nn.Linear(input_dim, 40),
-    nn.Dropout(p=0.3),
+    nn.Dropout(p=0.2),
     nn.GELU(),
     nn.Linear(40, output_dim),
     num_input=input_dim,
     num_output=output_dim,
-    normalize = True)
+    normalize=True)
 print(model)
 ms_dataset = SimpleMultiSessionDataset(X_train)
-n_steps = 1200
+n_steps = 3000
 loader = MultiSessionLoader(ms_dataset, num_steps=n_steps, batch_size=1024,
-                            distance=None, time_delta=15)
+                            time_delta=40)
 if distance == "euclidean":
     criterion_klass = EuclideanInfoNCE
 else:
     criterion_klass = CosineInfoNCE    
-criterion = criterion_klass(temperature=1, beta=1)
+criterion = criterion_klass(temperature=4, beta=1)
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, n_steps)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=200, gamma=0.9)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=400, gamma=0.9)
 solver = SingleSessionSolver(model=model, criterion=criterion,
                              optimizer=optimizer, scheduler=scheduler)
 solver.fit(loader)
@@ -97,7 +93,7 @@ with torch.no_grad():
 print(f"train embeddings: {embeddings_train.shape}")
 print(f"test embeddings: {embeddings_test.shape}")
 
-clf = LogisticRegression(random_state=42).fit(embeddings_train, y_train)
+clf = LogisticRegression(max_iter=1000, random_state=42).fit(embeddings_train, y_train)
 y_pred_train = clf.predict(embeddings_train)
 y_pred_test = clf.predict(embeddings_test)
 acc_train = accuracy_score(y_pred_train, y_train)
@@ -113,7 +109,7 @@ def rotate(angle):
     ax.view_init(azim=angle)
 
 
-colors = ["black", "red", "green", "blue", "purple"]
+colors = ["black", "red", "green", "blue", "purple", "yellow", "pink"]
 cmap = matplotlib.colors.ListedColormap(colors)
 
 if 1:
@@ -128,7 +124,7 @@ if 1:
         rot_animation = animation.FuncAnimation(
             fig, rotate, frames=np.arange(0, 362, 2), interval=100)
         rot_animation.save(os.path.join(outdir, f"embeddings_lr-{lr}_{name}.gif"),
-                           dpi=120, writer="imagemagick")
+                           dpi=80, writer="imagemagick")
 
 for name, embeddings, labels in (("train", embeddings_train, y_train),
                                  ("test", embeddings_test, y_test)):
@@ -141,7 +137,6 @@ for name, embeddings, labels in (("train", embeddings_train, y_train),
         ax.set_axis_off()
     plt.savefig(os.path.join(
         outdir, f"embeddings_lr-{lr}_{name}.png"), dpi=400)
-
 
 transitions_train, transitions_test = [], []
 label_transitions_train, label_transitions_test = [], []
@@ -171,4 +166,3 @@ for idx, (step_dists, cond, color) in enumerate(zip(
     axs[idx].spines["right"].set_visible(False)
     axs[idx].spines["top"].set_visible(False)
 fig.savefig(os.path.join(outdir, f"transitions_lr-{lr}_test.png"))
-
