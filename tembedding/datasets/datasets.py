@@ -88,9 +88,12 @@ class Dataset(object):
         self.train_index = train_index
         self.test_index = test_index
         self.n_samples = len(train_index) + len(test_index)
-        self.scaler = StandardScaler() # TODO MinMaxScaler or None
-        X_train = self.scaler.fit_transform(X[train_index])
-        X_test = self.scaler.transform(X[test_index])
+        self.scaler = None #StandardScaler() # TODO MinMaxScaler or None
+        if self.scaler is not None:
+            X_train = self.scaler.fit_transform(X[train_index])
+            X_test = self.scaler.transform(X[test_index])
+        else:
+            X_train, X_test = (X[train_index], X[test_index])
         self.dataset = SimpleNamespace(
             X_train=X_train, X_test=X_test,
             y_train=y[train_index], y_test=y[test_index])
